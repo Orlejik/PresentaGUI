@@ -2,10 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.Objects;
-
 public class PresentAGui extends JFrame {
     public PresentAGui() {
-        super("Test frame");
+        super("Presenta");
         createGUI();
     }
     public void createGUI() {
@@ -15,10 +14,10 @@ public class PresentAGui extends JFrame {
 //        начало позиционирования шапки
         JPanel panel1 = new JPanel();
         panel1.setLayout(null);
-        JLabel label1= new JLabel("Op. Number");
-        JLabel label2= new JLabel("Col. Number");
-        JLabel label3 = new JLabel("Shift");
-        JLabel lableLog = new JLabel("");
+        JLabel label1= new JLabel("Op. Number", SwingConstants.CENTER);
+        JLabel label2= new JLabel("Col. Number", SwingConstants.CENTER);
+        JLabel label3 = new JLabel("Shift", SwingConstants.CENTER);
+        JLabel lableLog = new JLabel("", SwingConstants.CENTER);
         JTextField text1 = new JTextField();
         JComboBox collectives = new JComboBox();
         JComboBox shifts = new JComboBox();
@@ -44,9 +43,11 @@ public class PresentAGui extends JFrame {
         text1.setBounds(5,45,90,25);
         collectives.setBounds(180,45,90,25);
         shifts.setBounds(107, 45, 60, 25);
-        lableLog.setBounds(10, 80,265,25);
-        textArea.setBounds(5,120,265, 370);
-        button.setBounds(65,500,155,40);
+        lableLog.setBounds(10, 525,265,25);
+        textArea.setBounds(5,85,265, 385);
+//        textArea.setLocation(5, 85);
+//        textArea.setPreferredSize(sSize);
+        button.setBounds(65,490,155,30);
         panel1.add(label1);
         panel1.add(label2);
         panel1.add(text1);
@@ -56,6 +57,9 @@ public class PresentAGui extends JFrame {
         panel1.add(collectives);
         panel1.add(textArea);
         panel1.add(button);
+        lableLog.setText("Powered by Oriol Artiom");
+        lableLog.setFont(new Font("Sans Serif", Font.PLAIN, 8));
+        lableLog.setForeground(Color.gray);
 //        Конец позиционирования шапки
 //        начало включения элементов в тело самой формы
         getContentPane().add(panel1);
@@ -126,6 +130,20 @@ public class PresentAGui extends JFrame {
             } catch (SQLException ex) {
                 System.out.println("Error while connection!");
                 throw new RuntimeException(ex);
+            }
+        });
+        button.addActionListener(eve->{
+            if(ListOfTables.tablesLength == 0){
+                JOptionPane.showMessageDialog(panel1,
+                        "Please, choose the collective",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                ListOfTables.executeTables();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         });
     }

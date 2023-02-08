@@ -3,13 +3,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 public class MySQLAccess {
     private static ResultSet rs = null;
     public static Connection connection = null;
     static PreparedStatement prst = null;
     static String query = "";
-
     public static String getCurrentTime() {
         java.util.Date date = new Date();
         SimpleDateFormat dtf = new SimpleDateFormat("ddMMyyyy");
