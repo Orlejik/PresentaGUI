@@ -3,6 +3,16 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.Objects;
 public class PresentAGui extends JFrame {
+    public static String clearNumber(String code){
+        if(code.toUpperCase().startsWith("O000")){
+            code = code.toUpperCase().replace("O000", "");
+        } else if (code.toUpperCase().startsWith("O00")) {
+            code = code.toUpperCase().replace("O00", "");
+        }else if (code.toUpperCase().startsWith("O0")) {
+            code = code.toUpperCase().replace("O0", "");
+        }
+        return code;
+    }
     public PresentAGui() {
         super("Presenta");
         createGUI();
@@ -64,7 +74,7 @@ public class PresentAGui extends JFrame {
 //        начало включения элементов в тело самой формы
         getContentPane().add(panel1);
 //        Конец включения элементов в тело самой формы
-        setPreferredSize(new Dimension(285,580));
+        setPreferredSize(new Dimension(290,582));
 //        setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
         collectives.addActionListener(ev -> {
             textArea.setText("");
@@ -115,14 +125,14 @@ public class PresentAGui extends JFrame {
 //                -------------Create Connection to DB-------------
             mySQLAccess.mysqlOperations();
             try {
-                MySQLAccess.createDBTable(collNumList, operNumInput, shiftCode);
+                MySQLAccess.createDBTable(collNumList, clearNumber(operNumInput), shiftCode);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
             //Используем - Например вставляем в другое текстовое поле
-            textArea.append(MySQLAccess.getCurrentTime_db()+ " : " +shiftCode+" - "+collNumList+" - "+operNumInput+"\n");
+            textArea.append(MySQLAccess.getCurrentTime_db()+ " : " +shiftCode+" - "+collNumList+" - "+clearNumber(operNumInput)+"\n");
             text1.setText("");
 //                -------------Close Connection with DB -------------
             try {
@@ -150,7 +160,7 @@ public class PresentAGui extends JFrame {
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                JFrame.setDefaultLookAndFeelDecorated(true);
+                JFrame.setDefaultLookAndFeelDecorated(false);
                 PresentAGui frame = new PresentAGui();
                 frame.pack();
                 frame.setResizable(false);
