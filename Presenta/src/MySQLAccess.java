@@ -10,7 +10,7 @@ public class MySQLAccess {
     static String query = "";
     public static String getCurrentTime() {
         java.util.Date date = new Date();
-        SimpleDateFormat dtf = new SimpleDateFormat("ddMMyyyy");
+         SimpleDateFormat dtf = new SimpleDateFormat("ddMMyyyy");
         String currentTime = dtf.format(date);
         return currentTime;
     }
@@ -23,6 +23,21 @@ public class MySQLAccess {
     public static void mysqlOperations() {
         try {
             String dbURL = "jdbc:mysql://10.20.193.237:3306/presenta?useSSL=false";
+            String userName = "artiom";
+            String passwd = "admin";
+            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
+            try {
+                connection = DriverManager.getConnection(dbURL, userName, passwd);
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    public static void mysqlCollectives() {
+        try {
+            String dbURL = "jdbc:mysql://10.20.193.237:3306/collectives?useSSL=false";
             String userName = "artiom";
             String passwd = "admin";
             Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
@@ -71,7 +86,7 @@ public class MySQLAccess {
         connection.close();
     }
     public boolean isDBConnected(Connection connection) throws SQLException {
-        return connection != null && connection.isClosed();
+            return connection != null && connection.isClosed();
     }
 }
 

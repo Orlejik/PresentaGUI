@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Objects;
 public class PresentAGui extends JFrame {
     public static String clearNumber(String code){
@@ -13,11 +16,23 @@ public class PresentAGui extends JFrame {
         }
         return code;
     }
-    public PresentAGui() {
+    public PresentAGui() throws SQLException {
         super("Presenta");
         createGUI();
     }
-    public void createGUI() {
+    public ArrayList<String> showCollectives() throws SQLException{
+        MySQLAccess.mysqlCollectives();
+        ArrayList<String> collectives =new ArrayList<>();
+
+        String querry = "SELECT * FROM collectives";
+        PreparedStatement stat = MySQLAccess.connection.prepareStatement(querry);
+        ResultSet resultSet = stat.executeQuery();
+        while(resultSet.next()){
+            collectives.add(resultSet.getString("Collective"));
+        }
+        return collectives;
+    }
+    public void createGUI() throws SQLException {
         MySQLAccess mySQLAccess = new MySQLAccess();
         Dimension sSize = Toolkit.getDefaultToolkit().getScreenSize();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,15 +50,9 @@ public class PresentAGui extends JFrame {
         textArea.setEditable(false);
         JButton button = new JButton("Finish");
         collectives.addItem("---");
-        collectives.addItem("18001");
-        collectives.addItem("18002");
-        collectives.addItem("18003");
-        collectives.addItem("18004");
-        collectives.addItem("18005");
-        collectives.addItem("18006");
-        collectives.addItem("18007");
-        collectives.addItem("18008");
-        collectives.addItem("18009");
+        for (String coll : showCollectives()) {
+            collectives.addItem(coll);
+        }
         shifts.addItem("M");
         shifts.addItem("T");
         shifts.addItem("N");
@@ -78,25 +87,37 @@ public class PresentAGui extends JFrame {
 //        setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
         collectives.addActionListener(ev -> {
             textArea.setText("");
+
             System.out.println(Objects.requireNonNull(collectives.getSelectedItem()) + " Selected");
             String collNumList = Objects.requireNonNull(collectives.getSelectedItem()).toString();
             String shiftCode = Objects.requireNonNull(shifts.getSelectedItem()).toString();
             String operNumInput = text1.getText();
+            ArrayList listColls;
+            try {
+                listColls = ListOfTables.printTable(collNumList, shiftCode);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            for (Object item : listColls) {
+                textArea.append(item +"\n");
+            }
+
             //                -------------Create Connection to DB-------------
             mySQLAccess.mysqlOperations();
             try {
-                if(mySQLAccess.isDBConnected(MySQLAccess.connection)){
+                if (mySQLAccess.isDBConnected(MySQLAccess.connection)) {
                     System.out.println("There is no Connection between java and mysql");
 //                       ----------------- dialog box with error message -------------------------
                     JOptionPane.showMessageDialog(panel1,
                             "There is no Connection between java and mysql",
                             "Error",
                             JOptionPane.ERROR_MESSAGE);
-                }else{
+                } else {
                     //                -------------Creation Table in DB -------------
-                    try{
+                    try {
                         mySQLAccess.createTable(MySQLAccess.connection, collNumList, shiftCode);
-                    }catch (SQLException ex){
+                    } catch (SQLException ex) {
                         System.out.println("Error while adding the record!");
                         throw new RuntimeException(ex);
                     }
@@ -132,8 +153,19 @@ public class PresentAGui extends JFrame {
                 throw new RuntimeException(ex);
             }
             //Используем - Например вставляем в другое текстовое поле
-            textArea.append(MySQLAccess.getCurrentTime_db()+ " : " +shiftCode+" - "+collNumList+" - "+clearNumber(operNumInput)+"\n");
+//            textArea.append(MySQLAccess.getCurrentTime_db()+ " : " +shiftCode+" - "+collNumList+" - "+clearNumber(operNumInput)+"\n");
             text1.setText("");
+            textArea.setText("");
+            ArrayList listColls;
+            try {
+                listColls = ListOfTables.printTable(collNumList, shiftCode);
+            } catch (SQLException eb) {
+                throw new RuntimeException(eb);
+            }
+
+            for (Object item : listColls) {
+                textArea.append(item +"\n");
+            }
 //                -------------Close Connection with DB -------------
             try {
                 mySQLAccess.closeDBConnection();
@@ -148,7 +180,7 @@ public class PresentAGui extends JFrame {
                         "Please, choose the collective",
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
-                return;
+              return;
             }
             try {
                 ListOfTables.executeTables();
@@ -161,7 +193,12 @@ public class PresentAGui extends JFrame {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JFrame.setDefaultLookAndFeelDecorated(false);
-                PresentAGui frame = new PresentAGui();
+                PresentAGui frame = null;
+                try {
+                    frame = new PresentAGui();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
                 frame.pack();
                 frame.setResizable(false);
                 frame.setLocationRelativeTo(null);
