@@ -36,6 +36,7 @@ public class ListOfTables {
         return tablesArray;
     }
     public static ArrayList<String> printTable(String collective, String tura) throws SQLException {
+        String fullShift = "";
         MySQLAccess.mysqlOperations();
         ArrayList<String> listOfRecords = new ArrayList<>();
         String querry = "SELECT * FROM "+collective+"_"+tura+"_"+MySQLAccess.getCurrentTime();
@@ -46,7 +47,14 @@ public class ListOfTables {
             String time = result.getString("time");
             String op_number = result.getString("op_number");
             String shift = result.getString("shift");
-            listOfRecords.add(id+" "+time+" "+op_number+" "+shift);
+            if(shift.equals("M")){
+                fullShift = "Morning";
+            } else if (shift.equals("T")) {
+                fullShift = "Afternoon";
+            }else{
+                fullShift ="Night";
+            }
+            listOfRecords.add(id+" "+" - "+" "+op_number+"\t"+fullShift+"\t"+time);
         }
         return listOfRecords;
     }

@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ public class MySQLAccess {
     static String query = "";
     public static String getCurrentTime() {
         java.util.Date date = new Date();
-         SimpleDateFormat dtf = new SimpleDateFormat("ddMMyyyy");
+        SimpleDateFormat dtf = new SimpleDateFormat("ddMMyyyy");
         String currentTime = dtf.format(date);
         return currentTime;
     }
@@ -51,9 +52,18 @@ public class MySQLAccess {
         }
     }
     public static void createTable(Connection con, String collective, String tura) throws SQLException {
-        query = "CREATE TABLE if not exists "+collective+"_"+tura+"_"+getCurrentTime()+" (Id int AUTO_INCREMENT, time varchar(255), op_number varchar(255), shift varchar(255), primary key(id));";
+        query = "CREATE TABLE if not exists "+collective+"_"+tura+"_"+getCurrentTime()+" (Id int AUTO_INCREMENT, time varchar(255), op_number varchar(255) UNIQUE, shift varchar(255), primary key(id));";
         prst = con.prepareStatement(query);
-        prst.execute();
+        try {
+            prst.execute();
+        }catch(SQLException ex){
+            JOptionPane.showMessageDialog(new JOptionPane(PresentAGui.panel1),
+                    "You are trying to add same record!",
+                    "Duplicates",
+                    JOptionPane.ERROR_MESSAGE);
+            PresentAGui.label1.setText("");
+            System.out.println("Duplicate!");
+        }
     }
     public static void makeRecord(Connection con, String collective, String op_number, String tura) throws SQLException {
         query = "INSERT INTO "+collective+"_"+tura+"_"+getCurrentTime()+"(time, op_number, shift ) VALUES ('"+getCurrentTime_db()+"', '"+op_number+"', '"+tura+"');";
@@ -86,7 +96,7 @@ public class MySQLAccess {
         connection.close();
     }
     public boolean isDBConnected(Connection connection) throws SQLException {
-            return connection != null && connection.isClosed();
+        return connection != null && connection.isClosed();
     }
 }
 
